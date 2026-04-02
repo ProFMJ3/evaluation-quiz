@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Évaluation — Pensée Critique & Résolution de Problèmes</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --cream: #f8f4ee;
+    --gold: #c9a84c;
+    --gold-light: #e8d5a3;
+    --teal: #1a6b6b;
+    --teal-light: #e8f4f4;
+    --red-soft: #c0392b;
+    --green-soft: #27ae60;
+    --mid: #5a5a7a;
+    --border: #ddd8cf;
+    --shadow: 0 4px 24px rgba(26,26,46,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ========= SCREENS ========= */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ========= ACCESS SCREEN ========= */
+  #screen-access {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+    align-items: center; justify-content: center; padding: 2rem;
+    position: relative; overflow: hidden;
+  }
+  #screen-access::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 70% 30%, rgba(201,168,76,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% 80%, rgba(26,107,107,0.18) 0%, transparent 55%);
+    pointer-events: none;
+  }
+  .access-card {
+    background: rgba(248,244,238,0.04);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 20px;
+    padding: 3rem 2.5rem;
+    max-width: 480px; width: 100%;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    position: relative; z-index: 1;
+    animation: fadeUp 0.7s ease both;
+  }
+  .access-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--gold), #b8860b);
+    color: #fff;
+    font-size: 0.7rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+    padding: 0.4rem 1.2rem; border-radius: 20px; margin-bottom: 1.5rem;
+  }
+  .access-card h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    color: #fff; line-height: 1.25; margin-bottom: 0.8rem;
+  }
+  .access-card p { color: rgba(248,244,238,0.65); font-size: 0.92rem; margin-bottom: 2rem; line-height: 1.6; }
+  .field-group { margin-bottom: 1.2rem; text-align: left; }
+  .field-group label { display: block; font-size: 0.8rem; font-weight: 500; color: var(--gold-light); margin-bottom: 0.5rem; letter-spacing: 0.5px; }
+  .field-group input {
+    width: 100%; padding: 0.85rem 1.1rem;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 10px; color: #fff; font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
+    outline: none; transition: border-color 0.2s;
+  }
+  .field-group input:focus { border-color: var(--gold); }
+  .field-group input::placeholder { color: rgba(248,244,238,0.35); }
+  .btn-primary {
+    width: 100%; padding: 1rem;
+    background: linear-gradient(135deg, var(--gold), #b8860b);
+    color: #fff; border: none; border-radius: 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500;
+    cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+    margin-top: 0.5rem;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(201,168,76,0.35); }
+  .btn-primary:active { transform: translateY(0); }
+  #access-error {
+    color: #ff8a80; font-size: 0.83rem; margin-top: 0.8rem;
+    display: none; padding: 0.6rem; background: rgba(255,138,128,0.1);
+    border-radius: 8px; border: 1px solid rgba(255,138,128,0.2);
+  }
+
+  /* ========= HEADER (shared) ========= */
+  .top-header {
+    background: var(--ink);
+    padding: 1rem 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 12px rgba(26,26,46,0.15);
+  }
+  .top-header .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem; color: var(--gold); font-weight: 700;
+  }
+  .top-header .user-chip {
+    font-size: 0.8rem; color: rgba(248,244,238,0.7);
+    background: rgba(255,255,255,0.07); border-radius: 20px; padding: 0.35rem 1rem;
+    border: 1px solid rgba(201,168,76,0.15);
+  }
+
+  /* ========= CONTEXT SCREEN ========= */
+  #screen-context { background: var(--cream); }
+  .hero-banner {
+    background: linear-gradient(135deg, var(--ink) 0%, #16213e 100%);
+    padding: 4rem 2rem 3rem; text-align: center; position: relative; overflow: hidden;
+  }
+  .hero-banner::after {
+    content: '';
+    position: absolute; bottom: -1px; left: 0; right: 0; height: 60px;
+    background: var(--cream);
+    clip-path: ellipse(55% 100% at 50% 100%);
+  }
+  .hero-eyebrow {
+    display: inline-block; color: var(--gold);
+    font-size: 0.72rem; font-weight: 500; letter-spacing: 3px; text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .hero-banner h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem); color: #fff; line-height: 1.2; margin-bottom: 1rem;
+    max-width: 680px; margin-left: auto; margin-right: auto;
+  }
+  .hero-banner .subtitle {
+    color: rgba(248,244,238,0.65); font-size: 1rem; max-width: 520px;
+    margin: 0 auto 2.5rem;
+  }
+  .content-wrapper { max-width: 800px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+  .context-section {
+    background: #fff; border-radius: 16px; padding: 2rem;
+    box-shadow: var(--shadow); margin-bottom: 1.5rem;
+    border-left: 4px solid var(--gold);
+    animation: fadeUp 0.5s ease both;
+  }
+  .context-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem; color: var(--ink); margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+  .context-section h2 .icon { font-size: 1.3rem; }
+  .context-section p { color: var(--mid); line-height: 1.7; font-size: 0.95rem; margin-bottom: 0.8rem; }
+  .context-section ul { padding-left: 1.2rem; color: var(--mid); }
+  .context-section li { margin-bottom: 0.4rem; font-size: 0.93rem; line-height: 1.6; }
+  .context-section li::marker { color: var(--gold); }
+  .quote-block {
+    background: linear-gradient(135deg, var(--teal-light), #e0f0f0);
+    border-radius: 12px; padding: 1.5rem 1.8rem; margin-top: 1rem;
+    border-left: 3px solid var(--teal); font-style: italic; color: var(--teal);
+    font-size: 0.95rem; line-height: 1.65;
+  }
+  .btn-action {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    padding: 1rem 2.5rem;
+    background: linear-gradient(135deg, var(--teal), #0d4d4d);
+    color: #fff; border: none; border-radius: 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500;
+    cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn-action:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,107,107,0.3); }
+  .btn-action svg { width: 18px; height: 18px; }
+  .btn-center { text-align: center; margin-top: 2rem; }
+
+  /* ========= SUBJECT SCREEN ========= */
+  #screen-subject { background: var(--cream); }
+  .subject-hero {
+    background: linear-gradient(135deg, #0f3460, #1a6b6b);
+    padding: 3.5rem 2rem 3rem; text-align: center; position: relative; overflow: hidden;
+  }
+  .subject-hero::after {
+    content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 50px;
+    background: var(--cream); clip-path: ellipse(55% 100% at 50% 100%);
+  }
+  .subject-hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4.5vw, 2.6rem); color: #fff; margin-bottom: 0.7rem;
+  }
+  .subject-hero p { color: rgba(255,255,255,0.7); font-size: 0.95rem; max-width: 500px; margin: 0 auto; }
+  .subject-grid { display: grid; gap: 1.2rem; }
+  @media (min-width: 620px) { .subject-grid { grid-template-columns: 1fr 1fr; } }
+  .subject-card {
+    background: #fff; border-radius: 14px; padding: 1.5rem;
+    box-shadow: 0 2px 12px rgba(26,26,46,0.07);
+    border-top: 3px solid var(--teal);
+    animation: fadeUp 0.5s ease both;
+  }
+  .subject-card h3 { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--ink); margin-bottom: 0.7rem; }
+  .subject-card p, .subject-card li { font-size: 0.88rem; color: var(--mid); line-height: 1.65; }
+  .subject-card ul { padding-left: 1.1rem; }
+  .subject-card li { margin-bottom: 0.3rem; }
+  .subject-card li::marker { color: var(--teal); }
+  .pill-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; }
+  .pill {
+    font-size: 0.75rem; font-weight: 500; padding: 0.3rem 0.9rem; border-radius: 20px;
+    background: var(--teal-light); color: var(--teal); border: 1px solid rgba(26,107,107,0.2);
+  }
+  .btn-gold {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    padding: 1rem 2.5rem;
+    background: linear-gradient(135deg, var(--gold), #b8860b);
+    color: #fff; border: none; border-radius: 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500;
+    cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(201,168,76,0.3); }
+
+  /* ========= QUIZ SCREEN ========= */
+  #screen-quiz {
+    background: var(--cream);
+    padding-bottom: 4rem;
+  }
+  .quiz-progress-bar-wrap {
+    background: #fff; border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+  }
+  .quiz-progress-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  .quiz-progress-meta span { font-size: 0.82rem; color: var(--mid); font-weight: 500; }
+  .quiz-progress-meta .q-counter { color: var(--teal); font-weight: 600; }
+  .progress-track {
+    height: 6px; background: var(--border); border-radius: 10px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--teal), var(--gold));
+    border-radius: 10px; transition: width 0.4s ease;
+  }
+  .quiz-body { max-width: 720px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .question-card {
+    background: #fff; border-radius: 18px; padding: 2rem 2rem 1.5rem;
+    box-shadow: var(--shadow);
+    animation: fadeUp 0.35s ease both;
+  }
+  .q-meta { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+  .q-badge {
+    font-size: 0.72rem; font-weight: 500; letter-spacing: 0.5px;
+    padding: 0.3rem 0.9rem; border-radius: 20px; text-transform: uppercase;
+  }
+  .q-badge.type-vf { background: #e3f0ff; color: #1a5fa8; }
+  .q-badge.type-cu { background: #e8f4ee; color: #1a7a3a; }
+  .q-badge.type-cm { background: #fff4e0; color: #a06010; }
+  .q-badge.diff-facile { background: #e8f4ee; color: var(--green-soft); }
+  .q-badge.diff-moyen { background: #fff4e0; color: #e67e22; }
+  .q-badge.diff-difficile { background: #fde8e8; color: var(--red-soft); }
+  .q-badge.theme { background: var(--teal-light); color: var(--teal); }
+  .question-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.05rem, 2.5vw, 1.25rem); color: var(--ink); line-height: 1.5;
+    margin-bottom: 1.6rem;
+  }
+  .options-list { display: flex; flex-direction: column; gap: 0.8rem; }
+  .option-item {
+    display: flex; align-items: center; gap: 0.9rem;
+    padding: 0.9rem 1.1rem;
+    background: var(--cream); border: 2px solid var(--border); border-radius: 12px;
+    cursor: pointer; transition: all 0.2s;
+    user-select: none;
+  }
+  .option-item:hover { border-color: var(--teal); background: var(--teal-light); }
+  .option-item.selected { border-color: var(--teal); background: var(--teal-light); }
+  .option-item .opt-indicator {
+    width: 22px; height: 22px; min-width: 22px;
+    border-radius: 50%; border: 2px solid var(--border); background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .option-item.checkbox .opt-indicator { border-radius: 6px; }
+  .option-item.selected .opt-indicator {
+    background: var(--teal); border-color: var(--teal);
+  }
+  .option-item.selected .opt-indicator::after { content: '✓'; color: #fff; font-size: 0.75rem; font-weight: 700; }
+  .option-label { font-size: 0.95rem; color: var(--ink); line-height: 1.4; }
+  .quiz-nav {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 1.8rem; padding-top: 1.4rem; border-top: 1px solid var(--border);
+    flex-wrap: wrap; gap: 0.8rem;
+  }
+  .btn-next {
+    padding: 0.85rem 2rem;
+    background: linear-gradient(135deg, var(--ink), #2a2a5a);
+    color: #fff; border: none; border-radius: 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .btn-next:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(26,26,46,0.25); }
+  .btn-next:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-next.submit-btn {
+    background: linear-gradient(135deg, var(--green-soft), #1a7a3a);
+  }
+  .hint-text { font-size: 0.8rem; color: var(--mid); }
+
+  /* ========= RESULTS SCREEN ========= */
+  #screen-results { background: var(--cream); }
+  .results-hero {
+    background: linear-gradient(135deg, var(--ink) 0%, #0f3460 100%);
+    padding: 3.5rem 2rem; text-align: center; position: relative; overflow: hidden;
+  }
+  .results-hero::after {
+    content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 50px;
+    background: var(--cream); clip-path: ellipse(55% 100% at 50% 100%);
+  }
+  .score-ring {
+    width: 140px; height: 140px; border-radius: 50%;
+    border: 8px solid rgba(201,168,76,0.25);
+    background: rgba(255,255,255,0.05);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    margin: 0 auto 1.5rem;
+    box-shadow: 0 0 40px rgba(201,168,76,0.2);
+    animation: pop 0.5s ease both;
+  }
+  .score-ring .score-pct {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem; font-weight: 900; color: var(--gold); line-height: 1;
+  }
+  .score-ring .score-label { font-size: 0.75rem; color: rgba(248,244,238,0.6); margin-top: 0.2rem; }
+  .results-hero h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.4rem, 3.5vw, 2rem); color: #fff; margin-bottom: 0.5rem;
+  }
+  .results-hero p { color: rgba(248,244,238,0.65); font-size: 0.93rem; }
+  .results-body { max-width: 800px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+  .stat-box {
+    background: #fff; border-radius: 14px; padding: 1.2rem;
+    text-align: center; box-shadow: 0 2px 10px rgba(26,26,46,0.06);
+  }
+  .stat-box .stat-val {
+    font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700;
+  }
+  .stat-box .stat-val.correct { color: var(--green-soft); }
+  .stat-box .stat-val.incorrect { color: var(--red-soft); }
+  .stat-box .stat-val.total { color: var(--teal); }
+  .stat-box .stat-lbl { font-size: 0.78rem; color: var(--mid); margin-top: 0.2rem; }
+  .corrections-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem; color: var(--ink); margin-bottom: 1.2rem;
+    padding-bottom: 0.6rem; border-bottom: 2px solid var(--border);
+  }
+  .correction-item {
+    background: #fff; border-radius: 14px; padding: 1.3rem 1.5rem;
+    margin-bottom: 1rem; box-shadow: 0 2px 10px rgba(26,26,46,0.05);
+    border-left: 4px solid transparent;
+  }
+  .correction-item.correct-ans { border-left-color: var(--green-soft); }
+  .correction-item.wrong-ans { border-left-color: var(--red-soft); }
+  .correction-header { display: flex; align-items: flex-start; gap: 0.8rem; margin-bottom: 0.7rem; }
+  .correction-icon { font-size: 1.1rem; margin-top: 0.1rem; }
+  .correction-q { font-size: 0.92rem; font-weight: 500; color: var(--ink); line-height: 1.45; }
+  .correction-detail { font-size: 0.83rem; color: var(--mid); line-height: 1.5; }
+  .correction-detail .lbl { font-weight: 500; }
+  .correction-detail .ans-correct { color: var(--green-soft); }
+  .correction-detail .ans-wrong { color: var(--red-soft); }
+  .btn-download {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    padding: 1rem 2.5rem;
+    background: linear-gradient(135deg, var(--teal), #0d4d4d);
+    color: #fff; border: none; border-radius: 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500;
+    cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+    text-decoration: none;
+  }
+  .btn-download:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,107,107,0.3); }
+  .transmission-box {
+    background: linear-gradient(135deg, #e8f4ee, #d0f0d8);
+    border-radius: 14px; padding: 1.5rem; margin-top: 2rem;
+    border: 1px solid rgba(39,174,96,0.2);
+  }
+  .transmission-box h3 { font-size: 0.95rem; font-weight: 600; color: var(--green-soft); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.4rem; }
+  .transmission-box p { font-size: 0.85rem; color: #2c6b40; line-height: 1.5; }
+  .transmission-box .email-list { margin-top: 0.5rem; }
+  .email-tag {
+    display: inline-block; background: rgba(39,174,96,0.12); color: #1a7a3a;
+    border: 1px solid rgba(39,174,96,0.25); border-radius: 20px;
+    padding: 0.2rem 0.8rem; font-size: 0.78rem; margin: 0.2rem;
+  }
+
+  /* ========= ANIMATIONS ========= */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pop {
+    from { opacity: 0; transform: scale(0.7); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* ========= RESPONSIVE ========= */
+  @media (max-width: 480px) {
+    .stats-row { grid-template-columns: 1fr; }
+    .quiz-nav { flex-direction: column-reverse; }
+    .btn-next { width: 100%; justify-content: center; }
+    .context-section, .question-card { padding: 1.4rem; }
+    .hero-banner, .subject-hero, .results-hero { padding: 2.5rem 1.2rem 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- =========== SCREEN: ACCESS =========== -->
+<div id="screen-access" class="screen active">
+  <div class="access-card">
+    <div class="access-badge">🎓 Évaluation certifiée</div>
+    <h1>Pensée Critique &<br>Résolution de Problèmes</h1>
+    <p>Accès réservé aux participants invités. Saisissez votre adresse email pour vérifier votre accès.</p>
+    <div class="field-group">
+      <label>Adresse email</label>
+      <input type="email" id="email-input" placeholder="votre@email.com" autocomplete="email">
+    </div>
+    <div class="field-group">
+      <label>Votre nom complet</label>
+      <input type="text" id="name-input" placeholder="Prénom Nom">
+    </div>
+    <button class="btn-primary" onclick="checkAccess()">Accéder à l'évaluation →</button>
+    <div id="access-error">❌ Accès refusé. Votre email ne figure pas dans la liste des participants actifs.</div>
+  </div>
+</div>
+
+<!-- =========== SCREEN: CONTEXT =========== -->
+<div id="screen-context" class="screen">
+  <div class="top-header">
+    <span class="logo">🎓 Évaluation</span>
+    <span class="user-chip" id="header-user-ctx"></span>
+  </div>
+  <div class="hero-banner">
+    <div class="hero-eyebrow">Contexte de l'évaluation</div>
+    <h1>Un dispositif conçu pour révéler votre plein potentiel</h1>
+    <p class="subtitle">Bienvenue dans cette évaluation conçue pour vous. Ce n'est pas un simple test — c'est une occasion unique de mesurer vos acquis.</p>
+  </div>
+  <div class="content-wrapper">
+    <div class="context-section" style="animation-delay:0.1s">
+      <h2><span class="icon">🎯</span> Objectifs de l'évaluation</h2>
+      <ul>
+        <li>Vérifier la compréhension des concepts fondamentaux abordés</li>
+        <li>Évaluer la capacité d'analyse face à des situations variées</li>
+        <li>Tester le raisonnement logique et la prise de décision</li>
+        <li>Mesurer le niveau global de maîtrise du participant sur le sujet</li>
+      </ul>
+    </div>
+    <div class="context-section" style="animation-delay:0.2s">
+      <h2><span class="icon">📋</span> Format de l'épreuve</h2>
+      <p>L'évaluation est composée de <strong>20 questions sélectionnées aléatoirement</strong>, pour garantir une expérience unique à chaque participant.</p>
+      <ul>
+        <li><strong>Questions Vrai / Faux</strong> — pour tester la précision de vos connaissances</li>
+        <li><strong>Questions à choix unique</strong> — pour évaluer votre capacité à identifier la meilleure réponse</li>
+        <li><strong>Questions à choix multiples</strong> — pour mesurer votre capacité à raisonner sur plusieurs dimensions</li>
+      </ul>
+    </div>
+    <div class="context-section" style="animation-delay:0.3s">
+      <h2><span class="icon">✅</span> Modalités et règles</h2>
+      <ul>
+        <li>Toutes les questions doivent être répondues avant la validation finale</li>
+        <li>Une fois l'évaluation soumise, aucune modification n'est possible</li>
+        <li>Le système calcule automatiquement votre score final</li>
+        <li>Vous recevez votre score exprimé en pourcentage (%)</li>
+      </ul>
+    </div>
+    <div class="context-section" style="animation-delay:0.4s">
+      <h2><span class="icon">💡</span> Votre évaluation, votre opportunité</h2>
+      <div class="quote-block">
+        « Cette évaluation n'est pas une fin en soi — c'est un tremplin. Chaque question est une fenêtre ouverte sur vos capacités réelles. »
+      </div>
+    </div>
+    <div class="btn-center">
+      <button class="btn-action" onclick="showScreen('screen-subject')">
+        Découvrir le sujet
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========== SCREEN: SUBJECT =========== -->
+<div id="screen-subject" class="screen">
+  <div class="top-header">
+    <span class="logo">🎓 Évaluation</span>
+    <span class="user-chip" id="header-user-subj"></span>
+  </div>
+  <div class="subject-hero">
+    <div class="hero-eyebrow" style="color:var(--gold-light)">Sujet développé</div>
+    <h1>Pensée Critique &<br>Résolution de Problèmes</h1>
+    <p>Deux compétences fondamentales pour analyser, décider et progresser dans toutes les sphères de la vie.</p>
+  </div>
+  <div class="content-wrapper">
+    <div class="subject-grid">
+      <div class="subject-card" style="animation-delay:0.1s">
+        <h3>🧠 Qu'est-ce que la pensée critique ?</h3>
+        <p>La capacité à analyser une information de façon objective, à remettre en question ce qui semble évident, à repérer les biais et à construire un jugement clair.</p>
+        <p style="margin-top:0.6rem">Ce n'est pas critiquer pour critiquer : c'est comprendre en profondeur et décider avec lucidité.</p>
+      </div>
+      <div class="subject-card" style="animation-delay:0.15s">
+        <h3>🔧 Comment fonctionne la résolution de problèmes ?</h3>
+        <p>Un processus en plusieurs étapes : identifier la difficulté, analyser ses causes, explorer des solutions, puis choisir la plus adaptée.</p>
+        <p style="margin-top:0.6rem">Elle fait appel à la logique, à la créativité et à la prise de décision.</p>
+      </div>
+      <div class="subject-card" style="animation-delay:0.2s">
+        <h3>🎓 Enjeux académiques</h3>
+        <ul>
+          <li>Comprendre les cours plutôt que mémoriser passivement</li>
+          <li>Structurer sa pensée lors des examens</li>
+          <li>Argumenter de manière cohérente</li>
+          <li>Résoudre des exercices complexes logiquement</li>
+        </ul>
+      </div>
+      <div class="subject-card" style="animation-delay:0.25s">
+        <h3>💼 Enjeux professionnels</h3>
+        <ul>
+          <li>Analyser des situations complexes rapidement</li>
+          <li>Proposer des solutions concrètes et justifiées</li>
+          <li>Prendre des décisions éclairées sous pression</li>
+          <li>S'adapter aux évolutions de l'environnement</li>
+        </ul>
+      </div>
+      <div class="subject-card" style="grid-column: 1 / -1; animation-delay:0.3s">
+        <h3>🎯 Compétences évaluées</h3>
+        <div class="pill-row">
+          <span class="pill">Compréhension</span>
+          <span class="pill">Analyse</span>
+          <span class="pill">Raisonnement</span>
+          <span class="pill">Prise de décision</span>
+          <span class="pill">Vigilance intellectuelle</span>
+        </div>
+        <p style="margin-top:1rem; font-size:0.88rem; color:var(--mid)">⚠️ <em>La réponse évidente n'est pas toujours la bonne. Cette évaluation met volontairement l'accent sur la réflexion plutôt que sur l'intuition.</em></p>
+      </div>
+    </div>
+    <div class="btn-center">
+      <button class="btn-gold" onclick="startQuiz()">
+        🚀 Commencer le quiz
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========== SCREEN: QUIZ =========== -->
+<div id="screen-quiz" class="screen">
+  <div class="top-header">
+    <span class="logo">🎓 Évaluation</span>
+    <span class="user-chip" id="header-user-quiz"></span>
+  </div>
+  <div class="quiz-progress-bar-wrap">
+    <div class="quiz-progress-meta">
+      <span class="q-counter" id="q-counter">Question 1 / 20</span>
+      <span id="q-theme-display"></span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width:5%"></div>
+    </div>
+  </div>
+  <div class="quiz-body">
+    <div class="question-card" id="question-card">
+      <!-- injected dynamically -->
+    </div>
+  </div>
+</div>
+
+<!-- =========== SCREEN: RESULTS =========== -->
+<div id="screen-results" class="screen">
+  <div class="top-header">
+    <span class="logo">🎓 Évaluation</span>
+    <span class="user-chip" id="header-user-res"></span>
+  </div>
+  <div class="results-hero">
+    <div class="score-ring">
+      <div class="score-pct" id="score-pct">0%</div>
+      <div class="score-label">Score final</div>
+    </div>
+    <h2 id="result-title">Résultats</h2>
+    <p id="result-subtitle">Félicitations pour avoir complété l'évaluation !</p>
+  </div>
+  <div class="results-body">
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-val correct" id="stat-correct">0</div>
+        <div class="stat-lbl">✅ Correctes</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val incorrect" id="stat-wrong">0</div>
+        <div class="stat-lbl">❌ Incorrectes</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val total">20</div>
+        <div class="stat-lbl">📝 Questions</div>
+      </div>
+    </div>
+    <p class="corrections-title">📖 Corrections détaillées</p>
+    <div id="corrections-list"></div>
+    <div class="btn-center" style="margin-top:1.5rem">
+      <button class="btn-download" onclick="downloadResults()">⬇️ Télécharger mes résultats</button>
+    </div>
+    <div class="transmission-box" id="transmission-box">
+      <h3>✅ Résultats transmis automatiquement</h3>
+      <p>Vos résultats ont été envoyés aux administrateurs et examinateurs :</p>
+      <div class="email-list" id="admin-email-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===========================
+// DATA
+// ===========================
+const ACTEURS = [
+  { role: "Administrateur", nom: "Jules FOLLYKOE", email: "follykoejules@gmail.com", statut: "Actif", groupe: "Administration" },
+  { role: "Administrateur", nom: "Ferry Le NEUTRE", email: "ferryleneutre@gmail.com", statut: "Actif", groupe: "Administration" },
+  { role: "Évalué", nom: "Dédé Modestine", email: "follykoededemodestine@gmail.com", statut: "Actif", groupe: "Promo 2026" },
+  { role: "Évalué", nom: "Messanh Jules", email: "follykoe10122004@gmail.com", statut: "Actif", groupe: "Promo 2026" }
+];
+
+const ALL_QUESTIONS = [
+  { id: 1, q: "La pensée critique consiste uniquement à critiquer négativement une idée.", type: "Vrai / Faux", diff: "Facile", theme: "Pensée critique", opts: ["Vrai","Faux"], correct: [1] },
+  { id: 2, q: "Quelle est la première étape de la résolution de problème ?", type: "Choix unique", diff: "Facile", theme: "Résolution de problèmes", opts: ["Identifier le problème","Choisir une solution","Évaluer les résultats","Ignorer le problème"], correct: [0] },
+  { id: 3, q: "Parmi les éléments suivants, lesquels font partie de la pensée critique ?", type: "Choix multiple", diff: "Moyen", theme: "Pensée critique", opts: ["Analyser les informations","Accepter sans questionner","Identifier les biais","Suivre l'opinion générale"], correct: [0,2] },
+  { id: 4, q: "Une source fiable est toujours vérifiée et crédible.", type: "Vrai / Faux", diff: "Facile", theme: "Fiabilité des sources", opts: ["Vrai","Faux"], correct: [0] },
+  { id: 5, q: "Quel est le rôle principal de l'analyse ?", type: "Choix unique", diff: "Moyen", theme: "Analyse", opts: ["Comprendre les éléments d'une situation","Ignorer les détails","Agir sans réfléchir","Copier une solution"], correct: [0] },
+  { id: 6, q: "Les biais cognitifs peuvent influencer nos décisions.", type: "Vrai / Faux", diff: "Facile", theme: "Biais cognitifs", opts: ["Vrai","Faux"], correct: [0] },
+  { id: 7, q: "Quelles sont les qualités d'un bon raisonnement ?", type: "Choix multiple", diff: "Moyen", theme: "Raisonnement", opts: ["Logique","Cohérence","Impulsivité","Clarté"], correct: [0,1,3] },
+  { id: 8, q: "Choisir rapidement une réponse garantit toujours qu'elle est correcte.", type: "Vrai / Faux", diff: "Facile", theme: "Prise de décision", opts: ["Vrai","Faux"], correct: [1] },
+  { id: 9, q: "Que faut-il faire face à une information douteuse ?", type: "Choix multiple", diff: "Moyen", theme: "Fiabilité des sources", opts: ["La vérifier","La partager immédiatement","Chercher des sources fiables","L'ignorer complètement"], correct: [0,2] },
+  { id: 10, q: "La résolution de problème nécessite plusieurs étapes.", type: "Vrai / Faux", diff: "Facile", theme: "Résolution de problèmes", opts: ["Vrai","Faux"], correct: [0] },
+  { id: 11, q: "Quelle action montre un esprit critique ?", type: "Choix multiple", diff: "Moyen", theme: "Esprit critique", opts: ["Poser des questions","Accepter tout","Analyser les preuves","Suivre aveuglément"], correct: [0,2] },
+  { id: 12, q: "Une bonne décision repose uniquement sur l'intuition.", type: "Vrai / Faux", diff: "Facile", theme: "Prise de décision", opts: ["Vrai","Faux"], correct: [1] },
+  { id: 13, q: "Quels éléments influencent une prise de décision ?", type: "Choix multiple", diff: "Difficile", theme: "Prise de décision", opts: ["Informations disponibles","Émotions","Pression sociale","Hasard uniquement"], correct: [0,1,2] },
+  { id: 14, q: "Analyser signifie décomposer une information.", type: "Vrai / Faux", diff: "Facile", theme: "Analyse", opts: ["Vrai","Faux"], correct: [0] },
+  { id: 15, q: "Quelle est une mauvaise pratique ?", type: "Choix unique", diff: "Moyen", theme: "Bonnes pratiques", opts: ["Ne pas vérifier ses sources","Comparer les informations","Analyser les faits","Prendre du recul"], correct: [0] },
+  { id: 16, q: "La logique aide à résoudre les problèmes.", type: "Vrai / Faux", diff: "Facile", theme: "Logique", opts: ["Vrai","Faux"], correct: [0] },
+  { id: 17, q: "Que faire avant de prendre une décision ?", type: "Choix multiple", diff: "Moyen", theme: "Prise de décision", opts: ["Analyser les options","Ignorer les conséquences","Comparer les solutions","Agir immédiatement"], correct: [0,2] },
+  { id: 18, q: "Toutes les opinions se valent sans analyse.", type: "Vrai / Faux", diff: "Facile", theme: "Pensée critique", opts: ["Vrai","Faux"], correct: [1] },
+  { id: 19, q: "Quels sont les avantages de la pensée critique ?", type: "Choix multiple", diff: "Difficile", theme: "Pensée critique", opts: ["Meilleures décisions","Réduction des erreurs","Augmentation des biais","Meilleure compréhension"], correct: [0,1,3] },
+  { id: 20, q: "Résoudre un problème implique de tester des solutions.", type: "Vrai / Faux", diff: "Facile", theme: "Résolution de problèmes", opts: ["Vrai","Faux"], correct: [0] }
+];
+
+// ===========================
+// STATE
+// ===========================
+let currentUser = null;
+let quizQuestions = [];
+let currentQIdx = 0;
+let userAnswers = [];
+
+// ===========================
+// ACCESS
+// ===========================
+function checkAccess() {
+  const email = document.getElementById('email-input').value.trim().toLowerCase();
+  const name = document.getElementById('name-input').value.trim();
+  const errEl = document.getElementById('access-error');
+  
+  const found = ACTEURS.find(a => a.email.toLowerCase() === email && a.statut === 'Actif' && a.role === 'Évalué');
+  if (found) {
+    currentUser = found;
+    if (name) currentUser.displayName = name;
+    errEl.style.display = 'none';
+    document.querySelectorAll('[id^="header-user"]').forEach(el => {
+      el.textContent = '👤 ' + (currentUser.displayName || currentUser.nom);
+    });
+    showScreen('screen-context');
+  } else {
+    errEl.style.display = 'block';
+  }
+}
+
+document.getElementById('email-input').addEventListener('keypress', e => { if (e.key === 'Enter') checkAccess(); });
+document.getElementById('name-input').addEventListener('keypress', e => { if (e.key === 'Enter') checkAccess(); });
+
+// ===========================
+// SCREEN NAVIGATION
+// ===========================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ===========================
+// QUIZ LOGIC
+// ===========================
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  quizQuestions = shuffle(ALL_QUESTIONS).slice(0, 20);
+  currentQIdx = 0;
+  userAnswers = new Array(20).fill(null).map(() => []);
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = quizQuestions[currentQIdx];
+  const isMulti = q.type === 'Choix multiple';
+  const selected = userAnswers[currentQIdx] || [];
+
+  // Update progress
+  document.getElementById('q-counter').textContent = `Question ${currentQIdx + 1} / 20`;
+  document.getElementById('q-theme-display').textContent = q.theme;
+  document.getElementById('progress-fill').style.width = `${((currentQIdx + 1) / 20) * 100}%`;
+
+  // Type badge
+  let typeBadge = '', typeCls = '';
+  if (q.type === 'Vrai / Faux') { typeBadge = 'Vrai / Faux'; typeCls = 'type-vf'; }
+  else if (q.type === 'Choix unique') { typeBadge = 'Choix unique'; typeCls = 'type-cu'; }
+  else { typeBadge = 'Choix multiple'; typeCls = 'type-cm'; }
+
+  let diffCls = q.diff === 'Facile' ? 'diff-facile' : q.diff === 'Moyen' ? 'diff-moyen' : 'diff-difficile';
+
+  const optsHtml = q.opts.map((opt, i) => `
+    <div class="option-item ${isMulti ? 'checkbox' : ''} ${selected.includes(i) ? 'selected' : ''}" 
+         onclick="toggleOption(${i})" data-idx="${i}">
+      <div class="opt-indicator"></div>
+      <span class="option-label">${opt}</span>
+    </div>
+  `).join('');
+
+  const isLast = currentQIdx === 19;
+  const hasAnswer = selected.length > 0;
+
+  document.getElementById('question-card').innerHTML = `
+    <div class="q-meta">
+      <span class="q-badge ${typeCls}">${typeBadge}</span>
+      <span class="q-badge ${diffCls}">${q.diff}</span>
+      <span class="q-badge theme">${q.theme}</span>
+    </div>
+    <div class="question-text">${q.q}</div>
+    <div class="options-list" id="options-list">${optsHtml}</div>
+    <div class="quiz-nav">
+      <span class="hint-text">${isMulti ? '📌 Plusieurs réponses possibles' : '📌 Une seule réponse'}</span>
+      <button class="btn-next ${isLast ? 'submit-btn' : ''}" id="btn-next" 
+              onclick="${isLast ? 'submitQuiz()' : 'nextQuestion()'}"
+              ${hasAnswer ? '' : 'disabled'}>
+        ${isLast ? '✅ Soumettre l\'évaluation' : 'Valider →'}
+      </button>
+    </div>
+  `;
+}
+
+function toggleOption(idx) {
+  const q = quizQuestions[currentQIdx];
+  const isMulti = q.type === 'Choix multiple';
+  let sel = userAnswers[currentQIdx] || [];
+
+  if (isMulti) {
+    if (sel.includes(idx)) sel = sel.filter(i => i !== idx);
+    else sel = [...sel, idx];
+  } else {
+    sel = [idx];
+  }
+  userAnswers[currentQIdx] = sel;
+  renderQuestion();
+}
+
+function nextQuestion() {
+  if (currentQIdx < 19) { currentQIdx++; renderQuestion(); }
+}
+
+// ===========================
+// SCORING & RESULTS
+// ===========================
+function submitQuiz() {
+  let correct = 0;
+  const corrections = [];
+
+  quizQuestions.forEach((q, i) => {
+    const given = (userAnswers[i] || []).sort().join(',');
+    const expected = [...q.correct].sort().join(',');
+    const isCorrect = given === expected;
+    if (isCorrect) correct++;
+    corrections.push({ q, given: userAnswers[i] || [], expected: q.correct, isCorrect });
+  });
+
+  const pct = Math.round((correct / 20) * 100);
+
+  // Score display
+  document.getElementById('score-pct').textContent = pct + '%';
+  document.getElementById('stat-correct').textContent = correct;
+  document.getElementById('stat-wrong').textContent = 20 - correct;
+
+  // Title & subtitle
+  let title, subtitle;
+  if (pct >= 80) { title = '🏆 Excellent travail !'; subtitle = `Vous maîtrisez très bien la pensée critique et la résolution de problèmes. Score : ${pct}%`; }
+  else if (pct >= 60) { title = '👍 Bon résultat !'; subtitle = `Vous avez de bonnes bases. Continuez à progresser ! Score : ${pct}%`; }
+  else { title = '💪 À améliorer !'; subtitle = `Ce résultat vous indique vos axes de progression. Score : ${pct}%`; }
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-subtitle').textContent = subtitle;
+
+  // Corrections
+  const cl = document.getElementById('corrections-list');
+  cl.innerHTML = corrections.map((c, i) => {
+    const givenText = c.given.length ? c.given.map(idx => c.q.opts[idx]).join(', ') : '(aucune réponse)';
+    const expectedText = c.expected.map(idx => c.q.opts[idx]).join(', ');
+    return `
+      <div class="correction-item ${c.isCorrect ? 'correct-ans' : 'wrong-ans'}">
+        <div class="correction-header">
+          <span class="correction-icon">${c.isCorrect ? '✅' : '❌'}</span>
+          <span class="correction-q">Q${i+1}. ${c.q.q}</span>
+        </div>
+        <div class="correction-detail">
+          <span class="lbl">Votre réponse :</span> <span class="${c.isCorrect ? 'ans-correct' : 'ans-wrong'}">${givenText}</span><br>
+          ${!c.isCorrect ? `<span class="lbl">Bonne réponse :</span> <span class="ans-correct">${expectedText}</span>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Transmission
+  const admins = ACTEURS.filter(a => a.role === 'Administrateur' && a.statut === 'Actif');
+  document.getElementById('admin-email-list').innerHTML = admins.map(a =>
+    `<span class="email-tag">📧 ${a.nom} (${a.email})</span>`
+  ).join(' ');
+
+  // Store results globally for download
+  window._quizResults = { pct, correct, corrections, user: currentUser };
+
+  showScreen('screen-results');
+}
+
+// ===========================
+// DOWNLOAD
+// ===========================
+function downloadResults() {
+  const r = window._quizResults;
+  if (!r) return;
+  const lines = [
+    '=== RÉSULTATS DE L\'ÉVALUATION ===',
+    `Participant : ${r.user.nom}`,
+    `Email : ${r.user.email}`,
+    `Groupe : ${r.user.groupe}`,
+    `Date : ${new Date().toLocaleDateString('fr-FR', {dateStyle:'full'})}`,
+    `Score : ${r.pct}% (${r.correct}/20)`,
+    '',
+    '=== CORRECTIONS DÉTAILLÉES ===',
+    ...r.corrections.map((c, i) =>
+      `Q${i+1}. ${c.q.q}\n  Votre réponse : ${c.given.map(idx => c.q.opts[idx]).join(', ') || '(aucune)'}\n  Bonne réponse : ${c.expected.map(idx => c.q.opts[idx]).join(', ')}\n  Résultat : ${c.isCorrect ? '✓ Correct' : '✗ Incorrect'}`
+    )
+  ];
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `resultats_evaluation_${r.user.nom.replace(/\s+/g,'_')}.txt`;
+  a.click();
+}
+</script>
+</body>
+</html>
